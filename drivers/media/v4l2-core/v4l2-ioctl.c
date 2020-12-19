@@ -2974,8 +2974,8 @@ out_array_args:
 out:
 	if (array_buf != mbuf_onstack)
 		kfree(array_buf);
-	return err;
 	kvfree(mbuf);
+	return err;
 }
 EXPORT_SYMBOL(video_usercopy);
 
