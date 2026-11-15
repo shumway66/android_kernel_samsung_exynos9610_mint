@@ -4640,6 +4640,7 @@ enum {
 	Opt_err_cont,
 	Opt_err_panic,
 	Opt_err_ro,
+	Opt_time_offset,
 	Opt_err,
 	Opt_discard,
 	Opt_fs,
@@ -4672,6 +4673,7 @@ static const match_table_t sdfat_tokens = {
 	{Opt_discard, "discard"},
 	{Opt_fs, "fs=%s"},
 	{Opt_adj_req, "adj_req"},
+	{Opt_time_offset, "time_offset=%d"},
 	{Opt_err, NULL}
 };
 
@@ -4806,6 +4808,9 @@ static int parse_options(struct super_block *sb, char *options, int silent,
 			break;
 		case Opt_debug:
 			*debug = 1;
+			break;
+		case Opt_time_offset:
+			/* A17 vold passes time_offset=; accepted and ignored */
 			break;
 		case Opt_discard:
 			opts->discard = 1;

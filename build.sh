@@ -131,9 +131,9 @@ SET_ANDROIDVERSION() {
 }
 SET_LOCALVERSION() {
     case "$BUILD_KERNEL_BRANCH" in
-    mainline) export LOCALVERSION=" - Mint $KERNEL_BUILD_VERSION" ;;
-    user)     export LOCALVERSION=" - Mint-user $BUILD_DATE" ;;
-    *)        export LOCALVERSION=" - Mint Beta $GITHUB_RUN_NUMBER"
+    mainline) export LOCALVERSION=" - Ultimate Kernel A50 $(date +%Y%m%d)" ;;
+    user)     export LOCALVERSION=" - Ultimate Kernel A50 $(date +%Y%m%d)" ;;
+    *)        export LOCALVERSION=" - Ultimate Kernel A50 $(date +%Y%m%d)"
     esac
 }
 SET_ZIPNAME() {
