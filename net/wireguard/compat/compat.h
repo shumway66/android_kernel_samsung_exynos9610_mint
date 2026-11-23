@@ -724,7 +724,7 @@ static inline void *skb_put_data(struct sk_buff *skb, const void *data, unsigned
 #endif
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 17, 0)
+#if 0 /* le32_to_cpu_array/cpu_to_le32_array now in include/linux/byteorder/generic.h (4.14 stable) */
 static inline void le32_to_cpu_array(u32 *buf, unsigned int words)
 {
 	while (words--) {
