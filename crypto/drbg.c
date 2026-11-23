@@ -1647,11 +1647,9 @@ static int drbg_uninstantiate(struct drbg_state *drbg)
 	if (drbg->random_ready.func) {
 		del_random_ready_callback(&drbg->random_ready);
 		cancel_work_sync(&drbg->seed_work);
-	}
-
-	if (!IS_ERR_OR_NULL(drbg->jent))
 		crypto_free_rng(drbg->jent);
-	drbg->jent = NULL;
+		drbg->jent = NULL;
+	}
 
 	if (drbg->d_ops)
 		drbg->d_ops->crypto_fini(drbg);
