@@ -1044,7 +1044,7 @@ static inline int __drbg_seed(struct drbg_state *drbg, struct list_head *seed,
 	if (ret)
 		return ret;
 
-	drbg->seeded = DRBG_SEED_STATE_FULL;
+	drbg->seeded = true;
 	/* 10.1.1.2 / 10.1.1.3 step 5 */
 	drbg->reseed_ctr = 1;
 
@@ -1089,14 +1089,14 @@ static void drbg_async_seed(struct work_struct *work)
 	if (ret)
 		goto unlock;
 
-	/* Reset ->seeded so that if __drbg_seed fails the next
-	 * generate call will trigger a reseed.
+	/* Set seeded to false so that if __drbg_seed fails the
+	 * next generate call will trigger a reseed.
 	 */
-	drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
+	drbg->seeded = false;
 
 	__drbg_seed(drbg, &seedlist, true);
 
-	if (drbg->seeded == DRBG_SEED_STATE_FULL)
+	if (drbg->seeded)
 		drbg->reseed_threshold = drbg_max_requests(drbg);
 
 unlock:
@@ -1385,14 +1385,13 @@ static int drbg_generate(struct drbg_state *drbg,
 	 * here. The spec is a bit convoluted here, we make it simpler.
 	 */
 	if (drbg->reseed_threshold < drbg->reseed_ctr)
-		drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
+		drbg->seeded = false;
 
-	if (drbg->pr || drbg->seeded == DRBG_SEED_STATE_UNSEEDED) {
+	if (drbg->pr || !drbg->seeded) {
 		pr_devel("DRBG: reseeding before generation (prediction "
 			 "resistance: %s, state %s)\n",
 			 drbg->pr ? "true" : "false",
-			 (drbg->seeded ==  DRBG_SEED_STATE_FULL ?
-			  "seeded" : "unseeded"));
+			 drbg->seeded ? "seeded" : "unseeded");
 		/* 9.3.1 steps 7.1 through 7.3 */
 		len = drbg_seed(drbg, addtl, true);
 		if (len)
@@ -1578,7 +1577,7 @@ static int drbg_instantiate(struct drbg_state *drbg, struct drbg_string *pers,
 	if (!drbg->core) {
 		drbg->core = &drbg_cores[coreref];
 		drbg->pr = pr;
-		drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
+		drbg->seeded = false;
 		drbg->reseed_threshold = drbg_max_requests(drbg);
 
 		ret = drbg_alloc_state(drbg);
