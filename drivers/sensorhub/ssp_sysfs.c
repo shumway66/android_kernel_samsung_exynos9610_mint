@@ -774,9 +774,25 @@ static ssize_t show_sensor_spec(struct device *dev,
 	if (cnt == 0)
 		return 0;
 
-	memcpy(buf, data->sensor_spec, data->sensor_spec_size);
+	/* Ultimate Kernel: the One UI 5 sensor HAL expects 46-byte records with a
+	 * 32-bit version field, the hub firmware sends 44-byte records with a
+	 * 16-bit one. Convert so the HAL parses accel/gyro/mag/light correctly. */
+	{
+		int n = data->sensor_spec_size / sizeof(struct sensor_spec_t);
+		const u8 *src = (const u8 *)data->sensor_spec;
+		u8 *dst = (u8 *)buf;
+		u32 ver;
 
-	return data->sensor_spec_size;
+		if (n * 46 > PAGE_SIZE)
+			n = PAGE_SIZE / 46;
+		for (i = 0; i < n; i++, src += 44, dst += 46) {
+			memcpy(dst, src, 17);		/* uid, name, vendor */
+			ver = src[17] | (src[18] << 8);
+			memcpy(dst + 17, &ver, 4);	/* version (32-bit) */
+			memcpy(dst + 21, src + 19, 25);	/* is_wake_up .. power */
+		}
+		return n * 46;
+	}
 }
 
 static ssize_t scontext_list_show(struct device *dev,
