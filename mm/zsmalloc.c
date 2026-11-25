@@ -2530,9 +2530,11 @@ void try_schedule_zs_compact()
 {
 	static unsigned long resume = INITIAL_JIFFIES;
 
-	if (time_is_before_jiffies(resume) &&
+	struct zs_pool *pool = READ_ONCE(g_pool);
+
+	if (pool && time_is_before_jiffies(resume) &&
 			!work_pending(&zs_compact_work) &&
-			zs_compactable(g_pool, ZS_COMPACT_THRESHOLD)) {
+			zs_compactable(pool, ZS_COMPACT_THRESHOLD)) {
 		resume = jiffies + ZS_COMPACT_INTERVAL * HZ;
 		schedule_work(&zs_compact_work);
 	}
@@ -2672,6 +2674,14 @@ EXPORT_SYMBOL_GPL(zs_create_pool);
 void zs_destroy_pool(struct zs_pool *pool)
 {
 	int i;
+
+	/* Ultimate Kernel: Samsung's app-exit compaction keeps a global pointer
+	 * to the first pool. Clear it when that pool goes away (zram reset, e.g.
+	 * changing comp_algorithm), or the next app exit touches freed memory. */
+	if (g_pool == pool) {
+		WRITE_ONCE(g_pool, NULL);
+		flush_work(&zs_compact_work);
+	}
 
 	zs_unregister_shrinker(pool);
 	zs_unregister_migration(pool);
