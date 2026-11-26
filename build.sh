@@ -449,7 +449,7 @@ mkdir -p "$TMP_DIR"
 VERIFY_TOOLCHAIN
 VERIFY_DEFCONFIG
 
-git submodule update --init "$TOP/KernelSU"
+true  # submodule update disabled: SukiSU Nova is a plain clone
 
 if $BUILD_KERNEL_CI; then
 	export KBUILD_BUILD_USER="Clembot"

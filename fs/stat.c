@@ -375,10 +375,19 @@ SYSCALL_DEFINE4(newfstatat, int, dfd, const char __user *, filename,
 }
 #endif
 
+#ifdef CONFIG_KSU
+extern void ksu_handle_vfs_fstat(int fd, loff_t *kstat_size_ptr);
+#endif
+
 SYSCALL_DEFINE2(newfstat, unsigned int, fd, struct stat __user *, statbuf)
 {
 	struct kstat stat;
 	int error = vfs_fstat(fd, &stat);
+
+#ifdef CONFIG_KSU
+	if (!error)
+		ksu_handle_vfs_fstat(fd, &stat.size);
+#endif
 
 	if (!error)
 		error = cp_new_stat(&stat, statbuf);
