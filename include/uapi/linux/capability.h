@@ -366,8 +366,17 @@ struct vfs_ns_cap_data {
 
 #define CAP_AUDIT_READ		37
 
+/* Ultimate Kernel: backported capability numbers (v5.8 / v5.9) so that
+ * Android 17's native zygote can walk the bounding set up to 40. */
+/* Allow system performance and observability privileged operations */
+#define CAP_PERFMON		38
+/* Allow BPF operations */
+#define CAP_BPF			39
+/* Allow checkpoint/restore related operations */
+#define CAP_CHECKPOINT_RESTORE	40
 
-#define CAP_LAST_CAP         CAP_AUDIT_READ
+
+#define CAP_LAST_CAP         CAP_CHECKPOINT_RESTORE
 
 #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
 
