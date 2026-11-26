@@ -1,4 +1,5 @@
 [submodule "KernelSU"]
 	path = KernelSU
-	url = https://github.com/rsuntk/KernelSU.git
+	url = https://github.com/shumway66/KernelSU.git
 	ignore = dirty
+	branch = legacy-4.14
